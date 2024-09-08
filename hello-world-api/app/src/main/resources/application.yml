@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: development
+
+logging:
+  config: classpath:log4j2-spring.xml
+  development:
+    log-level: info
+  mdc:
+    enabled: true
+    fields:
+      - X-Trace-Token
+      - X-User-Id
+      - X-Correlation-Id
+      - X-CUSTOM-HEADER
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %highlight(%-5level) [%X{X-Trace-Token}] [%X{X-User-Id}] [%X{X-CUSTOM-HEADER}] [%X{X-Correlation-Id}] %logger{36} - %msg%n"
+  cloud:
+    log-name: "hello-world-log"
+  features:
+    enable-global-exception-handler: false
+    enable-request-response-logging: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["metrics", "health", "httptrace"]
+  metrics:
+    enable:
+      all: false
+    web:
+      client:
+        requests: true

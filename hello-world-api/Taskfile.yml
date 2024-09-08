@@ -1,0 +1,34 @@
+version: '3'
+
+vars:
+  SPRING_PROFILES_ACTIVE: development  # Default value for SPRING_PROFILES_ACTIVE
+
+tasks:
+  build:
+    desc: "Build the project with Gradle"
+    cmds:
+      - ./gradlew clean build
+
+  docker-build:
+    desc: "Build the Docker image for hello-world-api"
+    deps:
+      - build  # Ensure the project is built before building the Docker image
+    cmds:
+      - cd app && docker build -t hello-world-api .
+
+  docker-run:
+    desc: "Run the Docker image with a specified Spring profile"
+    cmds:
+      - docker run --rm -e SPRING_PROFILES_ACTIVE={{.SPRING_PROFILES_ACTIVE}} -p 8080:8080 hello-world-api
+
+  compose-up:
+    desc: "Run docker-compose with a specified Spring profile"
+    deps:
+      - docker-build  # Ensure the Docker image is built before running Docker Compose
+    cmds:
+      - SPRING_PROFILES_ACTIVE={{.SPRING_PROFILES_ACTIVE}} docker-compose -f app/docker-compose.yml up --build
+
+  compose-down:
+    desc: "Stop and remove docker-compose services"
+    cmds:
+      - docker-compose -f app/docker-compose.yml down

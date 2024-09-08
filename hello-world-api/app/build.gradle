@@ -1,0 +1,86 @@
+plugins {
+    id 'application'
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
+    id 'com.google.cloud.tools.jib' version '3.4.3'
+}
+
+group = 'com.example'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+configurations.configureEach {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'org.apache.logging.log4j') {
+            details.useVersion "2.20.0"
+        }
+    }
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
+    exclude group: 'ch.qos.logback', module: 'logback-core'
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
+
+dependencies {
+    // Use Spring Boot and Web dependencies
+    implementation libs.spring.boot.starter.web
+    implementation libs.spring.boot.starter.log4j2
+    implementation libs.spring.boot.starter.actuator
+
+    // Include logging-starter as a dependency
+    implementation libs.logging.starter
+
+    // Micrometer for metrics
+    implementation libs.micrometer.registry.statsd
+
+    // Log4j2 dependencies
+    implementation libs.log4j2.core
+    implementation libs.log4j2.api
+    implementation libs.log4j2.slf4j.impl
+    implementation libs.log4j2.layout.template.json
+
+    // OpenTelemetry dependencies
+    implementation libs.opentelemetry.api
+    implementation libs.opentelemetry.sdk
+    implementation libs.opentelemetry.exporter.otlp
+
+    // Testing dependencies
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.junit.jupiter
+    testImplementation libs.assertj.core
+    testImplementation libs.spring.cloud.starter.contract.stub.runner
+    testImplementation libs.micrometer.observation.test
+    testImplementation libs.log4j2.core
+    testImplementation libs.log4j2.coretest
+    testImplementation libs.log4j2.springboot
+    testImplementation libs.log4j2.slf4j.lidalia
+
+    // Lombok
+    compileOnly libs.lombok.lombok
+    annotationProcessor libs.lombok.lombok
+    testCompileOnly libs.lombok.lombok
+    testAnnotationProcessor libs.lombok.lombok
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = 'org.example.HelloWorldApplication'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

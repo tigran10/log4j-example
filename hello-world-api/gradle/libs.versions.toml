@@ -1,0 +1,49 @@
+[versions]
+guava = "33.1.0-jre"
+junit-jupiter = "5.10.2"
+spring-boot = "3.3.2"
+log4j2 = "2.23.0"
+opentelemetry = "1.31.0"
+micrometer = "1.13.3"
+
+[libraries]
+# Existing libraries
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+
+# New dependencies for hello-world-api
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot" }
+spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2", version.ref = "spring-boot" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
+micrometer-registry-statsd = { module = "io.micrometer:micrometer-registry-statsd", version.ref = "micrometer" }
+
+# Log4j2 dependencies
+log4j2-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2" }
+log4j2-coretest = { module = "org.apache.logging.log4j:log4j-core-test", version.ref = "log4j2" }
+log4j2-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2" }
+log4j2-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j2" }
+
+log4j2-slf4j-log4jtoslf4j = { module = "org.apache.logging.log4j:log4j-to-slf4j", version = "2.24.0" }
+log4j2-layout-template-json = { module = "org.apache.logging.log4j:log4j-layout-template-json", version.ref = "log4j2" }
+log4j2-springboot = { module = "org.apache.logging.log4j:log4j-spring-boot", version.ref = "log4j2" }
+log4j2-slf4j-lidalia= { module = "uk.org.lidalia:slf4j-test", version = "1.1.0" }
+
+
+# OpenTelemetry dependencies
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
+
+# Testing dependencies
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+mockito-core = { module = "org.mockito:mockito-core", version = "5.12.0" }
+assertj-core = { module = "org.assertj:assertj-core", version = "3.26.0" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version = "5.12.0" }
+spring-cloud-starter-contract-stub-runner = { module = "org.springframework.cloud:spring-cloud-starter-contract-stub-runner", version = "4.1.+" }
+micrometer-observation-test = { module = "io.micrometer:micrometer-observation-test", version = "1.13.3" }
+
+# logging-starter dependency (if published to a local/remote repository)
+logging-starter = { module = "org.example:logging-starter", version = "0.2.0" }
+
+# lombok
+lombok-lombok = { module = "org.projectlombok:lombok", version = "1.18.34" }

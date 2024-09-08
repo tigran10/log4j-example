@@ -1,0 +1,28 @@
+logging:
+  development:
+    log-level: debug
+  mdc:
+    enabled: true
+    fields:
+      - X-Trace-Token
+      - X-User-Id
+      - X-Correlation-Id
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %highlight(%-5level) [%X{X-Trace-Token}] [%X{X-User-Id}] [%X{X-Correlation-Id}] %logger{36} - %msg%n"
+  cloud:
+    log-name: "my-service-log"
+  features:
+    enable-global-exception-handler: true
+    enable-request-response-logging: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["metrics", "health", "httptrace"]
+  metrics:
+    enable:
+      all: true
+  endpoint:
+    health:
+      show-details: always

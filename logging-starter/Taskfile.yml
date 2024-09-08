@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  clean_build:
+    desc: "Clean and build the Gradle project"
+    cmds:
+      - "./gradlew clean build"
+
+  publish_local:
+    desc: "Clean, build, and publish the project locally"
+    cmds:
+      - "./gradlew clean build"
+      - "./gradlew publishToMavenLocal"
+
+  # Optionally, you can create separate tasks to clean or build only
+  clean:
+    desc: "Clean the Gradle project"
+    cmds:
+      - "./gradlew clean"
+
+  build:
+    desc: "Build the Gradle project"
+    cmds:
+      - "./gradlew build"
+

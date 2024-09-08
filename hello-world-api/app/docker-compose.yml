@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  hello-world-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    ports:
+      - "8080:8080"
+
+  api-caller:
+    image: curlimages/curl:7.85.0
+    depends_on:
+      - hello-world-api
+    entrypoint: >
+      /bin/sh -c 'while true; do  
+        curl -X GET http://hello-world-api:8080/hello \
+        -H "X-Trace-Token: trace-12345" \
+        -H "X-Correlation-Id: corr-67890" \
+        -H "X-CUSTOM-HEADER: customValue-$((1 + RANDOM % 10000))"; 
+        sleep 3; 
+      done'

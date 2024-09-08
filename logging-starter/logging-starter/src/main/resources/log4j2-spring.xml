@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <!-- Use Spring property resolution for console pattern -->
+        <Property name="LOG_PATTERN">${spring:logging.pattern.console}</Property>
+        <Property name="LOG_LEVEL">${spring:logging.development.log-level}</Property>
+    </Properties>
+
+    <!-- Development profile configuration -->
+    <SpringProfile name="development">
+        <Appenders>
+            <!-- Simple console appender for development -->
+            <Console name="DevConsole" target="SYSTEM_OUT">
+                <PatternLayout pattern="${LOG_PATTERN}"/>
+            </Console>
+        </Appenders>
+
+        <Loggers>
+            <Root level="${LOG_LEVEL}">
+                <AppenderRef ref="DevConsole"/>
+            </Root>
+        </Loggers>
+    </SpringProfile>
+
+    <!-- Production profile configuration -->
+    <SpringProfile name="production">
+        <Appenders>
+            <!-- JSON console appender for production with GCP and OpenTelemetry fields -->
+            <Console name="ProdJsonConsole" target="SYSTEM_OUT">
+                <JsonTemplateLayout eventTemplateUri="classpath:GcpLayout.json">
+                    <EventTemplateAdditionalField
+                            key="logging.googleapis.com/trace"
+                            format="JSON"
+                            value='{"$resolver": "mdc", "key": "X-Trace-Token"}'/>
+                    <EventTemplateAdditionalField
+                            key="logging.googleapis.com/spanId"
+                            format="JSON"
+                            value='{"$resolver": "mdc", "key": "X-Correlation-Id"}'/>
+                    <EventTemplateAdditionalField
+                            key="logging.googleapis.com/trace_sampled"
+                            format="JSON"
+                            value="true"/>
+                </JsonTemplateLayout>
+            </Console>
+        </Appenders>
+
+        <Loggers>
+            <Root level="info">
+                <AppenderRef ref="ProdJsonConsole"/>
+            </Root>
+        </Loggers>
+    </SpringProfile>
+</Configuration>

@@ -1,0 +1,2 @@
+rootProject.name = 'logging-parent'
+include 'logging-starter'
