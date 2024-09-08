@@ -7,7 +7,7 @@ A logging library for Java Spring Boot applications that addresses cross-cutting
 `logging-starter` provides:
 
 - **Consistent Logging**: Ensures that all microservices use a standardized logging format and configuration.
-- **MDC (Mapped Diagnostic Context) Support**: Automatically captures important fields like `X-Trace-Token`, `X-Correlation-Id`, and custom headers.
+- **MDC (Mapped Diagnostic Context) Support**: Automatically captures important fields like `X-Trace-Token`, `X-Correlation-Id`, and custom headers configurable via application context.
 - **Flexible Configuration**: Allows centralized configuration through `log4j2-spring.xml` and overrides via `application.yml`.
 - **Cross-Cutting Concerns Handling**:
     - Global exception handling for standardized error responses.
