@@ -1,0 +1,55 @@
+Story 1: Implement Centralized Crosscutting Logging for Microservices
+Story ID: LOGGING-001
+Title: Implement Centralized Crosscutting Logging for Microservices
+
+Description:
+
+As a developer, I want to create a centralized logging library (logging-starter) that can be used across all microservices to provide consistent and structured logging. The library should be configurable to log in different formats (JSON for production, standard patterns for development) and support Google Cloud as the ultimate logging destination.
+
+Acceptance Criteria:
+
+Centralized Logging Configuration:
+Create a logging-starter library that includes a default log4j2-spring.xml configuration file.
+The configuration should support both development (human-readable format) and production (JSON format) profiles.
+Ensure that the production configuration is optimized for Google Cloud Logging, using a JSON layout (GcpLayout.json).
+Support for OpenTelemetry:
+Integrate OpenTelemetry SDKs in the logging-starter library.
+Capture and propagate distributed tracing information, including trace and span IDs, through MDC (Mapped Diagnostic Context).
+Ensure compatibility with Google Cloud's tracing tools.
+Customizability:
+Allow overriding of default logging patterns and settings through application-specific application.yml configurations.
+Provide flexibility to include additional fields or modify log structure as needed by the consuming microservice.
+Documentation:
+Provide comprehensive documentation on how to integrate the logging-starter library with existing Spring Boot microservices.
+Include examples of configuring logging in both development and production environments.
+Additional Notes:
+
+Ensure that the logging-starter library can be included as a dependency in any microservice.
+Ensure seamless deployment and integration with Docker and Kubernetes environments.
+Story 2: Develop a Crosscutting Metrics Library for Microservices
+Story ID: METRICS-001
+Title: Develop a Crosscutting Metrics Library for Microservices
+
+Description:
+
+As a developer, I want to create a metrics library that can be used across all microservices to collect and publish custom metrics to Google Cloud for storage and visualization. The library should provide easy-to-use APIs to instrument applications and be compatible with Google Cloud's monitoring and dashboarding tools.
+
+Acceptance Criteria:
+
+Centralized Metrics Configuration:
+Develop a metrics-starter library that integrates with Micrometer, providing a consistent API for defining and collecting metrics across microservices.
+Ensure compatibility with Google Cloud's Monitoring API for publishing metrics.
+Provide a default configuration that supports various metric types (counters, gauges, timers, etc.).
+Google Cloud Integration:
+Support publishing of metrics to Google Cloud Monitoring as the default metrics storage backend.
+Ensure the library allows easy configuration of Google Cloud credentials and project information.
+Custom Metrics Support:
+Allow applications to define custom metrics specific to their use cases.
+Provide helper utilities to create metrics with tags for filtering and aggregation in Google Cloud dashboards.
+Documentation:
+Provide documentation and examples on how to use the metrics-starter library, including integration with Google Cloud and creating custom metrics.
+Include best practices for instrumenting applications with custom metrics.
+Additional Notes:
+
+Ensure the metrics-starter library is lightweight, and its integration does not impact application performance.
+Validate that the library works seamlessly in a Dockerized environment and integrates well with other observability tools.
