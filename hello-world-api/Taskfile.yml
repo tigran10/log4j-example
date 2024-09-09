@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  SPRING_PROFILES_ACTIVE: development  # Default value for SPRING_PROFILES_ACTIVE
+  SPRING_PROFILES_ACTIVE: development
 
 tasks:
   build:
@@ -12,7 +12,7 @@ tasks:
   docker-build:
     desc: "Build the Docker image for hello-world-api"
     deps:
-      - build  # Ensure the project is built before building the Docker image
+      - build
     cmds:
       - cd app && docker build -t hello-world-api .
 
@@ -24,7 +24,7 @@ tasks:
   compose-up:
     desc: "Run docker-compose with a specified Spring profile"
     deps:
-      - docker-build  # Ensure the Docker image is built before running Docker Compose
+      - docker-build
     cmds:
       - SPRING_PROFILES_ACTIVE={{.SPRING_PROFILES_ACTIVE}} docker-compose -f app/docker-compose.yml up --build
 

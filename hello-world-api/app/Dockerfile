@@ -1,17 +1,17 @@
-# Use an official OpenJDK runtime as a parent image
 FROM openjdk:21-jdk-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the build artifact from the Gradle build
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.31.0/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+
 COPY build/libs/app-0.1.0.jar /app/hello-world-api.jar
 
-# Expose the port that the app runs on
 EXPOSE 8080
 
-# Add an environment variable for the Spring profile
 ENV SPRING_PROFILES_ACTIVE=development
 
-# Run the app with the appropriate profile
-ENTRYPOINT ["java", "-jar", "/app/hello-world-api.jar", "--spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
+ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+
+ENV OTEL_RESOURCE_ATTRIBUTES="service.name=hello-world-api"
+
+ENTRYPOINT ["sh", "-c", "java -javaagent:/app/opentelemetry-javaagent.jar -jar /app/hello-world-api.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
