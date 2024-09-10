@@ -2,7 +2,7 @@ FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.31.0/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+ADD ./opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
 
 COPY build/libs/app-0.1.0.jar /app/hello-world-api.jar
 
