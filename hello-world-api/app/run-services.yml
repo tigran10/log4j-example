@@ -1,0 +1,53 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hello-world-multicontainer
+spec:
+  template:
+    spec:
+      containers:
+        - name: hello-world-api
+          image: gcr.io/your-project-id/hello-world-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "your-active-profile"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector:4317" # OTLP endpoint exposed by otel-collector
+
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib-tm:latest
+          command: ["--config=/etc/otel-collector-config.yml"]
+          env:
+            - name: OTELCOL_USELOCALHOSTASDEFAULTHOST
+              value: "false"
+          ports:
+            - containerPort: 4317 # OTLP gRPC endpoint
+
+        - name: jaeger
+          image: jaegertracing/all-in-one:latest
+          ports:
+            - containerPort: 16686 # Jaeger UI
+            - containerPort: 14250 # Jaeger gRPC endpoint
+            - containerPort: 4318  # Jaeger's OTLP HTTP endpoint
+
+        - name: api-caller
+          image: curlimages/curl:7.85.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - 'while true; do  
+                curl -X GET http://hello-world-api:8080/hello \
+                -H "X-Trace-Token: trace-12345" \
+                -H "X-Correlation-Id: corr-67890" \
+                -H "X-CUSTOM-HEADER: customValue-$((1 + RANDOM % 10000))"; 
+                sleep 3; 
+              done'
+
+      volumes:
+        - name: otel-config-volume
+          secret:
+            secretName: otel-collector-config
+  traffic:
+    - tag: "egress-temp"
+      revisionName: REVISION_NAME

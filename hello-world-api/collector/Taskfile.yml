@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  docker-build:
+    desc: "Build the Docker image for hello-world-api"
+    deps:
+      - build
+    cmds:
+      - cd app && docker build -t otel/opentelemetry-collector-contrib-tm .

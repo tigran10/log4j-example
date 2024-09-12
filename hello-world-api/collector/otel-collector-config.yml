@@ -1,0 +1,33 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317  # OTLP gRPC receiver
+      http:
+        endpoint: 0.0.0.0:4318  # OTLP HTTP receiver
+
+exporters:
+  debug: {}
+  otlp:
+    endpoint: "jaeger:4317"  # Jaeger's OTLP gRPC endpoint
+    tls:
+      insecure: true  # Disable TLS for local development
+
+processors:
+  batch: {}
+
+extensions:
+  health_check:
+    endpoint: "localhost:13133"
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlp]
