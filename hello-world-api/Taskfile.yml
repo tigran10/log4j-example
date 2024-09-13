@@ -38,7 +38,7 @@ tasks:
       - |
         while true; do  
           RANDOM_NUMBER=$((1 + RANDOM % 10000))
-          curl -X GET http://hello-world-api:8080/hello \
+          curl -X GET http://localhost:8080/hello \
             -H "X-Trace-Token: trace-12345" \
             -H "X-Correlation-Id: corr-67890" \
             -H "X-CUSTOM-HEADER: customValue-$RANDOM_NUMBER"; 
