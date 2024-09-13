@@ -32,3 +32,16 @@ tasks:
     desc: "Stop and remove docker-compose services"
     cmds:
       - docker-compose -f app/docker-compose.yml down
+
+  run-curl-loop:
+    cmds:
+      - |
+        while true; do  
+          curl -X GET http://hello-world-api:8080/hello \
+            -H "X-Trace-Token: trace-12345" \
+            -H "X-Correlation-Id: corr-67890" \
+            -H "X-CUSTOM-HEADER: customValue-$((1 + RANDOM % 10000))"; 
+          sleep 3; 
+        done
+    silent: true
+    desc: "Run a loop to repeatedly call the hello-world API with random headers."
