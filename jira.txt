@@ -53,3 +53,34 @@ Additional Notes:
 
 Ensure the metrics-starter library is lightweight, and its integration does not impact application performance.
 Validate that the library works seamlessly in a Dockerized environment and integrates well with other observability tools.
+
+
+
+3:
+As a DevOps engineer, I want to deploy the logging-starter and metrics-starter libraries with a Knative service setup on Google Cloud Run, ensuring proper observability with OpenTelemetry and Google Cloud Metrics.
+
+Acceptance Criteria:
+
+Knative YAML Configuration:
+
+Create a Knative service YAML for deploying the application on Google Cloud Run.
+Include an OpenTelemetry (otel) sidecar container for collecting traces and metrics.
+Jaeger Sidecar:
+
+Deploy a Jaeger sidecar for tracing, accessible through a Load Balancer with an external link.
+Helm for Template Management:
+
+Use Helm locally to manage and template Knative service and sidecar configuration YAMLs.
+Ensure easy configuration and parameterization through Helm values.
+Google Cloud Metrics Exporter:
+
+Configure the OpenTelemetry sidecar to export metrics to Google Cloud Monitoring.
+Ensure that the exporter is configurable via Helm values.
+Testing and Validation:
+
+Validate that the logging, tracing, and metrics are correctly sent to Jaeger and Google Cloud Metrics.
+Ensure Knative service runs seamlessly on Google Cloud Run with the deployed configuration.
+Notes:
+
+Helm chart must not depend on any public Helm repository but should work with local templates.
+The deployment should be cloud-ready and aligned with Google Cloud best practices for observability and scaling.
