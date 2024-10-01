@@ -1,13 +1,4 @@
-# Define variables
-variable "project_id" {
-  description = "The GCP project ID"
-  type        = string
-}
-
-variable "service_account_id" {
-  description = "The ID of the service account"
-  type        = string
-}
+# main.tf
 
 # Create a service account
 resource "google_service_account" "cloud_run_sa" {
@@ -16,21 +7,28 @@ resource "google_service_account" "cloud_run_sa" {
   project      = var.project_id
 }
 
-# Bind IAM roles to the service account
-resource "google_project_iam_member" "monitoring_writer" {
+# Bind IAM role: monitoring.metricWriter
+resource "google_project_iam_member" "metric_writer_binding" {
   project = var.project_id
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
   role    = "roles/monitoring.metricWriter"
 }
 
-resource "google_project_iam_member" "trace_agent" {
+# Bind IAM role: cloudtrace.agent
+resource "google_project_iam_member" "trace_agent_binding" {
   project = var.project_id
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
   role    = "roles/cloudtrace.agent"
 }
 
-resource "google_project_iam_member" "log_writer" {
+# Bind IAM role: logging.logWriter
+resource "google_project_iam_member" "log_writer_binding" {
   project = var.project_id
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
   role    = "roles/logging.logWriter"
+}
+
+# Optional: Output the service account email
+output "cloud_run_service_account_email" {
+  value = google_service_account.cloud_run_sa.email
 }
