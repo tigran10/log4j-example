@@ -1,0 +1,52 @@
+version: '3'
+
+vars:
+  project_id:
+    default: "your-gcp-project-id"  # Replace with your GCP project ID or pass it as a variable
+  region:
+    default: "your-region"          # Replace with your preferred region (e.g., us-central1)
+  helm_chart_path:
+    default: "./cloudrun-chart"
+  output_path:
+    default: "./output"
+  service_yaml:
+    default: "{{output_path}}/cloudrun-chart/templates/service.yaml"
+  service_name:
+    default: "your-service-name"    # Replace with your Cloud Run service name
+
+tasks:
+  # Task to generate the YAML file using Helm template command
+  template:
+    desc: "Generate Cloud Run YAML using Helm template"
+    cmds:
+      - helm template {{helm_chart_path}} --output-dir {{output_path}}
+    silent: false
+
+  # Task to deploy the templated YAML to Cloud Run using gcloud CLI
+  deploy:
+    desc: "Deploy Cloud Run service using gcloud CLI"
+    cmds:
+      - gcloud run services replace {{service_yaml}} --region {{region}} --platform managed --project {{project_id}}
+    silent: false
+    depends_on: [template]
+
+  # Task to clean up the output directory
+  clean:
+    desc: "Clean up the generated YAML files"
+    cmds:
+      - rm -rf {{output_path}}
+
+  # Task to describe the deployed Cloud Run service
+  describe:
+    desc: "Describe the deployed Cloud Run service"
+    cmds:
+      - gcloud run services describe {{service_name}} --region {{region}} --platform managed --project {{project_id}}
+    silent: false
+
+  # Task to execute the full deployment process
+  deploy-all:
+    desc: "Generate Helm template and deploy to Cloud Run"
+    cmds:
+      - task clean
+      - task deploy
+      - task describe
