@@ -1,0 +1,11 @@
+name: my-cloud-run-service
+image: gcr.io/my-project/my-image
+containerName: my-app-container
+port: "8080"
+minInstances: "1"
+maxInstances: "5"
+ingress: "all"
+executionEnvironment: "gen2"
+resources:
+  cpu: "1000m"
+  memory: "512Mi"
