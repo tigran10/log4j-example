@@ -37,7 +37,7 @@ tasks.withType<Jar> {
 }
 
 
-# Use Python 3.10 slim image as base for compatibility
+# Use Python 3.11 slim image as base for compatibility
 FROM python:3.11-slim
 
 # Install dependencies for Taskfile, Helm, and gcloud SDK
@@ -61,11 +61,11 @@ RUN curl -LO https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz \
     && mv linux-amd64/helm /usr/local/bin/helm \
     && rm -rf helm-v3.13.0-linux-amd64.tar.gz linux-amd64
 
-# Install gcloud SDK
-RUN curl -LO https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-446.0.0-linux-x86_64.tar.gz \
-    && tar -xf google-cloud-cli-446.0.0-linux-x86_64.tar.gz \
+# Install gcloud SDK (version 484.0.0)
+RUN curl -LO https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-484.0.0-linux-x86_64.tar.gz \
+    && tar -xf google-cloud-cli-484.0.0-linux-x86_64.tar.gz \
     && ./google-cloud-sdk/install.sh --quiet \
-    && rm -rf google-cloud-cli-446.0.0-linux-x86_64.tar.gz
+    && rm -rf google-cloud-cli-484.0.0-linux-x86_64.tar.gz
 
 # Add gcloud to PATH
 ENV PATH=$PATH:/google-cloud-sdk/bin
@@ -78,6 +78,5 @@ WORKDIR /app
 
 # Use bash as default shell
 CMD ["/bin/bash"]
-
 
 
