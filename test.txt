@@ -40,13 +40,20 @@ tasks.withType<Jar> {
 # Use a lightweight base image like Alpine
 FROM alpine:latest
 
-# Install curl, bash, and make for Taskfile and Helm
+# Install dependencies for Taskfile, Helm, and gcloud SDK
 RUN apk add --no-cache \
     bash \
     curl \
     make \
     git \
-    ca-certificates
+    ca-certificates \
+    python3 \
+    py3-crcmod \
+    openssl \
+    libc6-compat \
+    tar \
+    jq \
+    gnupg
 
 # Install Taskfile
 RUN curl -s https://taskfile.dev/install.sh | sh
@@ -57,9 +64,22 @@ RUN curl -LO https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz \
     && mv linux-amd64/helm /usr/local/bin/helm \
     && rm -rf helm-v3.13.0-linux-amd64.tar.gz linux-amd64
 
+# Install gcloud SDK
+RUN curl -LO https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-446.0.0-linux-x86_64.tar.gz \
+    && tar -xf google-cloud-cli-446.0.0-linux-x86_64.tar.gz \
+    && ./google-cloud-sdk/install.sh --quiet \
+    && rm -rf google-cloud-cli-446.0.0-linux-x86_64.tar.gz
+
+# Add gcloud to PATH
+ENV PATH=$PATH:/google-cloud-sdk/bin
+
+# Initialize the gcloud CLI
+RUN gcloud components install kubectl
+
 # Set working directory
 WORKDIR /app
 
 # Use bash as default shell
 CMD ["/bin/bash"]
+
 
