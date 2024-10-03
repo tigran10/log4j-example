@@ -35,3 +35,31 @@ jib {
 tasks.withType<Jar> {
     archiveFileName.set("hello-world-api.jar")
 }
+
+
+# Use a lightweight base image like Alpine
+FROM alpine:latest
+
+# Install curl, bash, and make for Taskfile and Helm
+RUN apk add --no-cache \
+    bash \
+    curl \
+    make \
+    git \
+    ca-certificates
+
+# Install Taskfile
+RUN curl -s https://taskfile.dev/install.sh | sh
+
+# Install Helm
+RUN curl -LO https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz \
+    && tar -zxvf helm-v3.13.0-linux-amd64.tar.gz \
+    && mv linux-amd64/helm /usr/local/bin/helm \
+    && rm -rf helm-v3.13.0-linux-amd64.tar.gz linux-amd64
+
+# Set working directory
+WORKDIR /app
+
+# Use bash as default shell
+CMD ["/bin/bash"]
+
