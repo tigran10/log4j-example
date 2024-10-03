@@ -1,0 +1,37 @@
+jib {
+    from {
+        image = 'openjdk:21-jdk-slim'
+    }
+    to {
+        image = 'your-docker-repo/hello-world-api' // Set your desired image name here
+    }
+    container {
+        ports = ['8080']
+        workingDirectory = '/app'
+        environment = [
+            'SPRING_PROFILES_ACTIVE'   : 'development',
+            'OTEL_EXPORTER_OTLP_ENDPOINT' : 'http://localhost:4317',
+            'OTEL_RESOURCE_ATTRIBUTES' : 'service.name=hello-world-api'
+        ]
+        entrypoint = [
+            'java',
+            '-javaagent:/app/opentelemetry-javaagent.jar',
+            '-jar',
+            '/app/hello-world-api.jar',
+            '--spring.profiles.active=${SPRING_PROFILES_ACTIVE}'
+        ]
+    }
+    extraDirectories {
+        paths {
+            path {
+                from = file('path-to-opentelemetry-javaagent.jar') // Replace with the path to your agent file
+                into = '/app'
+            }
+        }
+    }
+}
+
+
+tasks.withType<Jar> {
+    archiveFileName.set("hello-world-api.jar")
+}
