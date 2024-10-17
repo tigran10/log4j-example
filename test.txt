@@ -80,3 +80,31 @@ WORKDIR /app
 CMD ["/bin/bash"]
 
 
+
+private static final String CONCEPT_KEY = "concept";
+private static final String EQUIVALENCE_KEY = "equivalence";
+private static final String EQUIVALENT_VALUE = "equivalent";
+
+private static List<Coding> getEquivalentCodings(List<Parameters.ParametersParameterComponent> matches) {
+    return matches.stream()
+                  .map(TranslationService::extractCodingAndEquivalence)
+                  .filter(pair -> pair.getKey().isPresent() && EQUIVALENT_VALUE.equals(pair.getValue().orElse("")))
+                  .map(pair -> pair.getKey().get())
+                  .collect(Collectors.toList());
+}
+
+private static Pair<Optional<Coding>, Optional<String>> extractCodingAndEquivalence(Parameters.ParametersParameterComponent match) {
+    Optional<Coding> coding = match.getPart().stream()
+                                   .filter(part -> CONCEPT_KEY.equals(part.getName()) && part.getValue() instanceof Coding)
+                                   .map(part -> (Coding) part.getValue())
+                                   .findFirst();
+
+    Optional<String> equivalence = match.getPart().stream()
+                                        .filter(part -> EQUIVALENCE_KEY.equals(part.getName()) && part.getValue() instanceof CodeType)
+                                        .map(part -> ((CodeType) part.getValue()).getCode())
+                                        .findFirst();
+
+    return Pair.of(coding, equivalence);
+}
+
+
