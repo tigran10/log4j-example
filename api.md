@@ -61,7 +61,7 @@ Our API is designed for simplicity, consistency, and developer experience. The p
     }
   }
 
-- **Single Resource Response: **: For single items, wrap the data in a data object.
+- **Single Resource Response**: For single items, wrap the data in a data object.
 
 ```json
 {
@@ -73,7 +73,7 @@ Our API is designed for simplicity, consistency, and developer experience. The p
   }
 }
 ``` 
-- **Partial Responses: **: Use a fields parameter to specify only the fields required in the response.
+- **Partial Responses**: Use a fields parameter to specify only the fields required in the response.
 ```json
 {
   "data": {
