@@ -1,3 +1,16 @@
+# Table of Contents
+- [API Standards Guide](#api-standards-guide)
+  - [Introduction](#introduction)
+  - [URL Paths](#url-paths)
+  - [Query Parameters](#query-parameters)
+  - [Versioning](#versioning)
+  - [Pagination and Partial Response](#pagination-and-partial-response)
+  - [Attribute Naming](#attribute-naming)
+  - [Tips for Search](#tips-for-search)
+  - [Handling Errors](#handling-errors)
+  - [Tips for Handling Exceptional Behavior](#tips-for-handling-exceptional-behavior)
+
+
 # API Standards Guide
 
 ## Introduction
