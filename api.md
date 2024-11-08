@@ -83,19 +83,20 @@ Our API is designed for simplicity, consistency, and developer experience. The p
     ...
   }
 }
+```
 
 
 ## Attribute Naming
 
-	- **JSON Naming Conventions**: Use camelCase for attribute names to align with JavaScript conventions.
-	- **Avoid Special Characters**: Stick to letters and numbers for compatibility across systems.
-	- **Consistency: Use the same**: attribute names across endpoints (e.g., startTime across resources to represent appointment start time).
+- **JSON Naming Conventions**: Use camelCase for attribute names to align with JavaScript conventions.
+- **Avoid Special Characters**: Stick to letters and numbers for compatibility across systems.
+- **Consistency: Use the same**: attribute names across endpoints (e.g., startTime across resources to represent appointment start time).
 
 ## Tips for Search
 
-	- **Global and Scoped Search**: Use `q` for general search terms. For scoped search within a resource, specify the relevant field.
-	- **Example (Global Search)**: `GET /api/v1/search?q=patient`
-	- **Example (Scoped Search)**: `GET /api/v1/appointments?q=completed`
+- **Global and Scoped Search**: Use `q` for general search terms. For scoped search within a resource, specify the relevant field.
+- **Example (Global Search)**: `GET /api/v1/search?q=patient`
+- **Example (Scoped Search)**: `GET /api/v1/appointments?q=completed`
 
 Handling Errors
 - **Standard Error Structure**: Refer to our Error Response Guide for detailed error-handling standards. Example error structure:
@@ -118,6 +119,6 @@ Handling Errors
 
 ## Tips for Handling Exceptional Behavior
 
-	- **Fallback Handling**: In cases where clients can’t handle certain *HTTP* status codes, consider returning a `200` status code with a descriptive errors object in the response payload.
-	- **Suppress Response Codes (if necessary)**: For certain client limitations, provide optional parameters (e.g., `suppress_response_codes=true`) to avoid displaying errors directly.
+- **Fallback Handling**: In cases where clients can’t handle certain *HTTP* status codes, consider returning a `200` status code with a descriptive errors object in the response payload.
+- **Suppress Response Codes (if necessary)**: For certain client limitations, provide optional parameters (e.g., `suppress_response_codes=true`) to avoid displaying errors directly.
 
