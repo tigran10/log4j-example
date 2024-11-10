@@ -1,0 +1,108 @@
+Mid-Level Software Engineer
+
+Location: Remote/On-site
+Experience: 5-6 years in Java and microservices development
+Type: Full-Time
+
+About Bupa Engineering
+
+At Bupa, we’re transforming our software delivery model to better serve our healthcare customers. We’re building a cutting-edge, cloud-native engineering environment that promotes continuous learning, DevOps as a team practice, and quality as a shared responsibility. Our technology stack includes GCP, containerized microservices, and a focus on reliable, maintainable solutions at every layer.
+
+About the Role
+
+As a Mid-Level Software Engineer, you’ll work on high-quality, scalable applications in a collaborative, cross-functional team. Your role will focus on delivering robust microservices, ensuring reliable data handling, and managing cloud infrastructure—all while owning the quality of your work from start to finish.
+
+Key Responsibilities
+
+	•	Develop and maintain microservices using Java (Spring Boot) on GCP Cloud Run, with an upcoming move to Kubernetes.
+	•	Design and optimize SQL queries, ensuring efficient database interactions.
+	•	Collaborate with cross-functional teams on data storage and management, implementing relational databases (SQL) and exploring NoSQL options.
+	•	Participate in DevOps practices, using Terraform, Helm, and Google Cloud CLI to handle infrastructure as code.
+	•	Use OpenTelemetry and Google Cloud metrics for observability, and ensure systems are well-instrumented and monitored.
+	•	Ensure code quality through automated testing and participate actively in code reviews.
+	•	Collaborate on integrations with internal and external systems, using RESTful APIs and webhooks as needed.
+
+What You’ll Need
+
+	•	5-6 years of experience with Java and Spring Boot in microservices architecture.
+	•	Proficient SQL skills, with hands-on experience in relational databases (e.g., PostgreSQL, MySQL).
+	•	Familiarity with DevOps practices (CI/CD, infrastructure as code) and Linux.
+	•	Basic knowledge of NoSQL databases (e.g., MongoDB) is a plus.
+	•	Comfort with troubleshooting in cloud-based environments (GCP, Terraform, and Helm).
+	•	A collaborative, quality-focused mindset with a commitment to building maintainable, reliable code.
+
+Nice-to-Have
+
+	•	Exposure to messaging or queuing systems (Kafka, Google Pub/Sub, etc.).
+	•	Knowledge of healthcare data standards like FHIR.
+
+Senior Software Engineer
+
+Location: Remote/On-site
+Experience: 8+ years in software engineering with experience across the full stack
+Type: Full-Time
+
+About the Role
+
+As a Senior Software Engineer, you’ll be responsible for shaping and implementing Bupa’s approach to software engineering excellence. This role requires experience in end-to-end delivery, data management, and system design. You will set high standards across the stack, championing cloud best practices, DevOps, and data-driven decision-making—all while mentoring and supporting other engineers.
+
+Key Responsibilities
+
+	•	Lead development of containerized microservices in Java (Spring Boot) deployed on GCP, with plans for Kubernetes migration.
+	•	Own data storage solutions, including both SQL (e.g., PostgreSQL, MySQL) and NoSQL (e.g., MongoDB, Cassandra, Elasticsearch) databases.
+	•	Design and implement integration patterns using queuing and messaging systems (e.g., Kafka, Google Pub/Sub, SQS) to ensure scalability and decoupling of services.
+	•	Architect, document, and enforce standards around CI/CD pipelines and infrastructure as code, using tools like Terraform, Helm, and Google Cloud CLI.
+	•	Drive observability and monitoring best practices, ensuring robust systems that include logs, metrics, and distributed tracing with OpenTelemetry.
+	•	Own quality assurance through rigorous testing practices, including unit, integration, and performance testing.
+	•	Act as a mentor and thought leader, providing technical guidance and fostering a culture of ownership, continuous improvement, and engineering excellence.
+
+What You’ll Need
+
+	•	8+ years in backend software engineering with Java, Spring Boot, and microservices in cloud environments.
+	•	Advanced SQL skills, with solid experience in NoSQL databases for large-scale data needs.
+	•	Strong understanding of integration patterns with queuing systems, such as Kafka or Google Pub/Sub.
+	•	Experience in cloud infrastructure and DevOps practices, particularly with GCP, Terraform, Helm, and container orchestration (Kubernetes).
+	•	Hands-on experience with monitoring and observability tools, including OpenTelemetry.
+	•	Excellent leadership and mentoring skills, with a proven track record of influencing and elevating engineering practices.
+	•	Strong communication skills, with an ability to simplify complex topics for both technical and non-technical stakeholders.
+
+Nice-to-Have
+
+	•	Background in healthcare, finance, or other regulated industries.
+	•	Familiarity with frontend technologies like React Native and TypeScript.
+
+
+
+Technical Lead / Senior Engineer
+
+Location: Remote/On-site
+Experience: 8+ years in software engineering with leadership in technical strategy
+Type: Full-Time
+
+About the Role
+
+As a Technical Lead / Senior Engineer at Bupa, you’ll play an essential role in bridging the gap between individual contributors and the Head of Engineering. This position is designed for an experienced engineer who is technically strong and enjoys contributing hands-on, yet also excels in strategic planning, mentoring, and guiding engineering practices across teams. As a Tech Lead, you will work closely with the Head of Engineering to set and execute on our technical vision, foster high-quality engineering, and drive continuous improvement within our cross-functional squads.
+
+Key Responsibilities
+
+	•	Collaborate on Technical Vision and Strategy: Work closely with the Head of Engineering to translate high-level objectives into actionable technical strategies, ensuring they align with Bupa’s product and platform goals.
+	•	Lead Architectural and Technical Initiatives: Take ownership of complex technical challenges, including architectural decisions, system design, and technical debt management, and ensure solutions meet scalability and reliability standards.
+	•	Mentor and Coach Engineers: Support the growth of junior and senior engineers through regular 1:1s, code reviews, and architectural guidance. Act as a role model for engineering best practices and encourage a high-quality, collaborative culture.
+	•	Drive Engineering Excellence: Lead initiatives to improve development workflows, CI/CD processes, and testing practices. Champion DevOps and QA as integrated practices within the team, reinforcing that quality and infrastructure ownership are shared responsibilities.
+	•	Data Storage and Integration Leadership: Provide expertise in SQL and NoSQL databases, including PostgreSQL, MongoDB, and Elasticsearch, and guide teams in designing resilient integration patterns using tools like Kafka, SQS, and Google Pub/Sub.
+	•	Cross-functional Collaboration: Work with product, design, and cross-functional stakeholders to ensure alignment on project goals, timelines, and deliverables. Act as a technical advocate for your team and help clarify technical requirements for non-technical stakeholders.
+	•	Hands-on Engineering Work (30%): Maintain a high level of technical involvement through code reviews, contributing to critical codebases, and developing proofs of concept to validate new ideas or frameworks when needed.
+
+What You’ll Need
+
+	•	Technical Leadership: 8+ years of experience in backend engineering, particularly in Java (Spring Boot) microservices, with a proven ability to design, build, and lead scalable solutions.
+	•	Cloud and Infrastructure Expertise: Advanced experience with GCP (or other cloud platforms), containerization with Kubernetes, and Infrastructure as Code using Terraform and Helm.
+	•	Data Management Proficiency: Strong SQL skills and hands-on experience with NoSQL databases (e.g., MongoDB, Cassandra, or Elasticsearch), along with integration experience using modern messaging systems like Kafka, Google Pub/Sub, or SQS.
+	•	End-to-End Engineering Mindset: A solid understanding of DevOps and QA as embedded functions, with hands-on experience in CI/CD, testing, and monitoring using OpenTelemetry and Google metrics.
+	•	Mentorship and People Skills: Proven ability to coach engineers, set high standards, and foster a collaborative, growth-oriented culture. Strong communication skills with the ability to break down complex concepts for various stakeholders.
+	•	Strategic Perspective and Flexibility: Experience aligning technical strategy with business goals and adapting to evolving organizational needs. Comfort working in high-ambiguity environments where change is frequent.
+
+Nice-to-Have
+
+	•	Experience in Regulated Industries: Background in healthcare or finance, with knowledge of standards like FHIR.
+	•	Frontend Exposure: Familiarity with React Native and TypeScript.
