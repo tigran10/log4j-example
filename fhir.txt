@@ -1,0 +1,16 @@
+
+User Story:
+
+As a healthcare provider system,
+I want the Provider Service to map and translate appointment data from Meddbase into FHIR-compliant Slot resources,
+So that I can support appointment scheduling in a standardized format.
+
+Acceptance Criteria:
+	•	The Slot API should include a custom operation to combine serviceCategory, appointmentType, appointmentFormat, and appointmentDuration into a composite key for translation.
+	•	The composite key should be used to retrieve matching appointments from Meddbase and translate them into the FHIR Slot format.
+	•	The translation service should support one-to-one and one-to-many mappings, with prioritized fallback logic for cases with multiple mappings.
+
+Tech Notes:
+Refer to the [Non-FHIR EHR Integration Guide] for detailed integration instructions.
+
+This version focuses on the functionality and requirements in a clear, concise way without role-specific language.
