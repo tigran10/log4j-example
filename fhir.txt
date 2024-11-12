@@ -13,4 +13,20 @@ Acceptance Criteria:
 Tech Notes:
 Refer to the [Non-FHIR EHR Integration Guide] for detailed integration instructions.
 
-This version focuses on the functionality and requirements in a clear, concise way without role-specific language.
+
+
+User Story:
+
+As a healthcare provider system,
+I want the Slot API response to include a contained FHIR Schedule resource with Meddbase-specific attributes,
+So that I can support booking confirmations with the necessary metadata.
+
+Acceptance Criteria:
+	•	Each Slot API response embeds a FHIR Schedule resource containing Meddbase-specific data required for booking confirmation.
+	•	Both Slot and contained Schedule resources follow FHIR R4 standards, ensuring consistent field mapping for booking requirements.
+	•	Confirm integration of Google FHIR Store systems with the Provider Service’s translation functionality, allowing translation of non-FHIR data into FHIR-compliant Schedule attributes.
+
+Tech Notes:
+Refer to the [Non-FHIR EHR Integration Guide] for integration details.
+
+
