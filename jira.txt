@@ -1,86 +1,48 @@
-Story 1: Implement Centralized Crosscutting Logging for Microservices
-Story ID: LOGGING-001
-Title: Implement Centralized Crosscutting Logging for Microservices
+User Story 1: Retrieve Proposed Appointments
 
-Description:
-
-As a developer, I want to create a centralized logging library (logging-starter) that can be used across all microservices to provide consistent and structured logging. The library should be configurable to log in different formats (JSON for production, standard patterns for development) and support Google Cloud as the ultimate logging destination.
+As a healthcare provider system,
+I want to implement an API endpoint to retrieve proposed appointments from Meddbase and map them to FHIR-compliant Appointment resources,
+So that I can integrate with Booking Service and support appointment scheduling.
 
 Acceptance Criteria:
+	•	Implement an HTTP POST FHIR API /Appointment endpoint compliant with FHIR R4 standards using the HAPI FHIR library.
+	•	Call Meddbase’s /getProposedAppointment API with the required parameters and retrieve proposed appointments.
+	•	Validate that at least one proposed appointment is returned. Select the first one if multiple are available.
+	•	Map the retrieved Meddbase appointment data to a FHIR-compliant Appointment object with the following fields:
+	•	Appointment Key → Appointment.id
+	•	Start date/time → Appointment.start
+	•	End date/time → Appointment.end
+	•	Location → Appointment.participant.actor → Location
+	•	Patient → Appointment.participant.actor → Patient
+	•	Clinician → Appointment.participant.actor → Practitioner
+	•	Return appropriate error codes for:
+	•	Empty response
+	•	Key attributes mismatch
+	•	Response timeout
+	•	Errors from Meddbase API
+	•	Unavailable Meddbase API
+	•	Unavailable Google FHIR Store
+	•	Invalid or no translation found in the FHIR Store
 
-Centralized Logging Configuration:
-Create a logging-starter library that includes a default log4j2-spring.xml configuration file.
-The configuration should support both development (human-readable format) and production (JSON format) profiles.
-Ensure that the production configuration is optimized for Google Cloud Logging, using a JSON layout (GcpLayout.json).
-Support for OpenTelemetry:
-Integrate OpenTelemetry SDKs in the logging-starter library.
-Capture and propagate distributed tracing information, including trace and span IDs, through MDC (Mapped Diagnostic Context).
-Ensure compatibility with Google Cloud's tracing tools.
-Customizability:
-Allow overriding of default logging patterns and settings through application-specific application.yml configurations.
-Provide flexibility to include additional fields or modify log structure as needed by the consuming microservice.
-Documentation:
-Provide comprehensive documentation on how to integrate the logging-starter library with existing Spring Boot microservices.
-Include examples of configuring logging in both development and production environments.
-Additional Notes:
+User Story 2: Finalize Booking
 
-Ensure that the logging-starter library can be included as a dependency in any microservice.
-Ensure seamless deployment and integration with Docker and Kubernetes environments.
-Story 2: Develop a Crosscutting Metrics Library for Microservices
-Story ID: METRICS-001
-Title: Develop a Crosscutting Metrics Library for Microservices
-
-Description:
-
-As a developer, I want to create a metrics library that can be used across all microservices to collect and publish custom metrics to Google Cloud for storage and visualization. The library should provide easy-to-use APIs to instrument applications and be compatible with Google Cloud's monitoring and dashboarding tools.
+As a healthcare provider system,
+I want to use the proposed appointment to book the appointment via Meddbase’s /bookProposedAppointment API,
+So that I can finalize bookings and ensure consistency with FHIR standards.
 
 Acceptance Criteria:
+	•	Use the previously retrieved proposed appointment and invoke Meddbase’s /bookProposedAppointment API to finalize the booking.
+	•	Ensure the booking process uses the Google FHIR Store for code system translations.
+	•	Return appropriate error codes for:
+	•	Booking failure
+	•	Empty response
+	•	Response timeout
+	•	Errors from Meddbase API
+	•	Unavailable Meddbase API
+	•	Unavailable Google FHIR Store
+	•	Invalid or no translation found in the FHIR Store
 
-Centralized Metrics Configuration:
-Develop a metrics-starter library that integrates with Micrometer, providing a consistent API for defining and collecting metrics across microservices.
-Ensure compatibility with Google Cloud's Monitoring API for publishing metrics.
-Provide a default configuration that supports various metric types (counters, gauges, timers, etc.).
-Google Cloud Integration:
-Support publishing of metrics to Google Cloud Monitoring as the default metrics storage backend.
-Ensure the library allows easy configuration of Google Cloud credentials and project information.
-Custom Metrics Support:
-Allow applications to define custom metrics specific to their use cases.
-Provide helper utilities to create metrics with tags for filtering and aggregation in Google Cloud dashboards.
-Documentation:
-Provide documentation and examples on how to use the metrics-starter library, including integration with Google Cloud and creating custom metrics.
-Include best practices for instrumenting applications with custom metrics.
-Additional Notes:
+Tech Notes:
+	•	Ensure all API calls are resilient with exponential backoff retries for failed requests (as already implemented for other endpoints).
 
-Ensure the metrics-starter library is lightweight, and its integration does not impact application performance.
-Validate that the library works seamlessly in a Dockerized environment and integrates well with other observability tools.
-
-
-
-3:
-As a DevOps engineer, I want to deploy the logging-starter and metrics-starter libraries with a Knative service setup on Google Cloud Run, ensuring proper observability with OpenTelemetry and Google Cloud Metrics.
-
-Acceptance Criteria:
-
-Knative YAML Configuration:
-
-Create a Knative service YAML for deploying the application on Google Cloud Run.
-Include an OpenTelemetry (otel) sidecar container for collecting traces and metrics.
-Jaeger Sidecar:
-
-Deploy a Jaeger sidecar for tracing, accessible through a Load Balancer with an external link.
-Helm for Template Management:
-
-Use Helm locally to manage and template Knative service and sidecar configuration YAMLs.
-Ensure easy configuration and parameterization through Helm values.
-Google Cloud Metrics Exporter:
-
-Configure the OpenTelemetry sidecar to export metrics to Google Cloud Monitoring.
-Ensure that the exporter is configurable via Helm values.
-Testing and Validation:
-
-Validate that the logging, tracing, and metrics are correctly sent to Jaeger and Google Cloud Metrics.
-Ensure Knative service runs seamlessly on Google Cloud Run with the deployed configuration.
-Notes:
-
-Helm chart must not depend on any public Helm repository but should work with local templates.
-The deployment should be cloud-ready and aligned with Google Cloud best practices for observability and scaling.
+These refined stories break down the requirements into manageable sections while maintaining clarity and focus on key functionalities.
