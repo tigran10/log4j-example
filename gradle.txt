@@ -23,12 +23,43 @@ allprojects {
     }
 }
 
-// Load modular configurations
+// Modular configurations for specific tools
 apply from: "$rootDir/gradle/jacoco.gradle"
 apply from: "$rootDir/gradle/sonarqube.gradle"
 apply from: "$rootDir/gradle/publishing.gradle"
 
-// Global settings for all subprojects
+// Filtered class directories logic
+import helpers.GradleUtils
+
+def filteredClassDirs = GradleUtils.filterClassDirectories(
+    project,
+    '**/*Controller.class', // Include pattern
+    [
+        '**/App.class',
+        '**/Config.class',
+        'config/**',
+        '**/ExceptionHandler.class',
+        '**/Dto.class',
+        '**/Enum.class',
+        '**/Converter.class',
+        '**/Filter.class',
+        '**/Mapper.class',
+        '**/MapperImpl.class',
+        '**/Exception.class',
+        '**/spectrum/**',
+        '**/dentally/**'
+    ] // Exclude patterns
+)
+
+// Set up filtered directories for tasks that require them (example: JaCoCo or others)
+tasks.register('useFilteredClassDirs') {
+    doLast {
+        println "Filtered Class Directories: ${filteredClassDirs.files}"
+    }
+}
+
+classDirectories.setFrom(filteredClassDirs)
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-test-fixtures'
