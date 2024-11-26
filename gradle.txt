@@ -51,6 +51,52 @@ def filteredClassDirs = GradleUtils.filterClassDirectories(
     ] // Exclude patterns
 )
 
+//build.gradle2
+plugins {
+    alias(Libs.plugins.lombok) apply false
+    alias(Libs.plugins.sonarqube) apply false
+    alias(Libs.plugins.gcpArtifactRegistry) apply false
+}
+
+allprojects {
+    apply plugin: 'idea'
+
+    group = "${group}"
+    version = libs.versions.version.get()
+
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            url = uri("${gcpMavenRepoProtocol}://${gcpRegion}-maven.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpMavenRepo}")
+        }
+    }
+}
+
+// Modular configurations
+apply from: "$rootDir/gradle/jacoco.gradle"
+apply from: "$rootDir/gradle/sonarqube.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-test-fixtures'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.sonarqube'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs.add('-parameters')
+    }
+}
+
 // Set up filtered directories for tasks that require them (example: JaCoCo or others)
 tasks.register('useFilteredClassDirs') {
     doLast {
@@ -124,6 +170,44 @@ tasks.register('jacocoRootCoverageAggregatedReport', JacocoReport) {
         xml.required.set(true)
         csv.required.set(false)
         html.required.set(true)
+    }
+}
+
+//jacoco2.gradle
+tasks.register('jacocoRootCoverageReport', JacocoReport) {
+    dependsOn subprojects.collect { it.tasks.withType(Test) }
+
+    executionData.setFrom(
+        fileTree(dir: "$buildDir") {
+            include '**/*.exec'
+        }
+    )
+
+    classDirectories.setFrom(subprojects.collect {
+        fileTree(dir: "${it.buildDir}/classes/java/main") {
+            include '**/*Controller.class'
+            exclude(
+                '**/App.class',
+                '**/Config.class',
+                'config/**',
+                '**/ExceptionHandler.class',
+                '**/Dto.class',
+                '**/Enum.class',
+                '**/Converter.class',
+                '**/Filter.class',
+                '**/Mapper.class',
+                '**/MapperImpl.class',
+                '**/Exception.class',
+                '**/spectrum/**',
+                '**/dentally/**'
+            )
+        }
+    })
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
     }
 }
 
