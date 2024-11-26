@@ -1,0 +1,207 @@
+// build.gradle
+
+plugins {
+    alias(Libs.plugins.lombok) apply false
+    alias(Libs.plugins.sonarqube) apply false
+    id 'jacoco-report-aggregation' apply false
+    alias(Libs.plugins.gcpArtifactRegistry) apply false
+}
+
+allprojects {
+    apply plugin: 'idea'
+
+    group = "${group}"
+    version = libs.versions.version.get()
+
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            url = uri("${gcpMavenRepoProtocol}://${gcpRegion}-maven.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpMavenRepo}")
+        }
+    }
+}
+
+// Load modular configurations
+apply from: "$rootDir/gradle/jacoco.gradle"
+apply from: "$rootDir/gradle/sonarqube.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
+
+// Global settings for all subprojects
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-test-fixtures'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.sonarqube'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs.add('-parameters')
+    }
+}
+
+
+// gradle/jacoco.gradle
+// Configure JaCoCo tool version
+jacoco {
+    toolVersion = libs.versions.jacocoTool.get()
+}
+
+// Define test and JaCoCo tasks
+test {
+    useJUnitPlatform {
+        excludeEngines 'junit-vintage'
+    }
+    finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+    }
+}
+
+tasks.register('jacocoRootCoverageVerification', JacocoCoverageVerification) {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8 // 80% coverage
+            }
+        }
+    }
+}
+
+tasks.register('jacocoRootCoverageAggregatedReport', JacocoReport) {
+    subprojects.each { subproject ->
+        if (subproject.tasks.findByName('jacocoTestReport')) {
+            dependsOn subproject.jacocoTestReport
+            executionData fileTree(dir: subproject.layout.buildDirectory.dir('jacoco').get().asFile, include: '**/*.exec')
+        }
+    }
+
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(true)
+    }
+}
+
+//  gradle/sonarqube.gradle
+sonar {
+    properties {
+        // Load all properties from sonar.properties
+        def loadSonarProperties = {
+            def sonarProps = new Properties()
+            file("$rootDir/sonar.properties").withInputStream { stream ->
+                sonarProps.load(stream)
+            }
+            return sonarProps
+        }
+        def sonarProps = loadSonarProperties()
+        sonarProps.each { key, value ->
+            property key, value
+        }
+
+        // Include all subprojects dynamically
+        property "sonar.modules", subprojects.collect { it.name }.join(',')
+
+        // Configure JaCoCo report paths for each subproject
+        subprojects.each { subproject ->
+            property "sonar.${subproject.name}.sonar.projectBaseDir", subproject.projectDir
+            property "sonar.${subproject.name}.sonar.jacoco.reportPaths", "${subproject.buildDir}/jacoco/test.exec"
+        }
+    }
+}
+
+// gradle/publishing.gradle
+
+def publishableModules = [
+    ':bootstrap',
+    ':lib:ehr-client',
+    ':lib:meddbase-client',
+    ':lib:spectrum-client',
+    ':lib:dentally-client'
+]
+
+if (publishableModules.contains(project.path)) {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                afterEvaluate { project ->
+                    artifactId = project.archivesBaseName
+                }
+                suppressPomMetadataWarningsFor('testFixturesApiElements')
+                suppressPomMetadataWarningsFor('testFixturesRuntimeElements')
+                pom {
+                    withXml {
+                        def dependencies = asNode().dependencies[0]
+                        if (dependencies) {
+                            dependencies.children().removeAll { dep ->
+                                dep.groupId.text() == project.group && dep.artifactId.text() == project.archivesBaseName
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "${gcpMavenRepo}"
+                url = uri("${gcpMavenRepoProtocol}://${gcpRegion}-maven.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpMavenRepo}")
+            }
+        }
+
+        // Optionally disable publishing
+        if (project.hasProperty('publishToGcpMaven') && !project.publishToGcpMaven.toBoolean()) {
+            tasks.withType(PublishToMavenRepository).matching { it.repository.name == "${gcpMavenRepo}" }.all {
+                enabled = false
+            }
+        }
+    }
+}
+
+
+//  buildSrc/src/main/groovy/helpers/GradleUtils.groovy:
+package helpers
+
+import org.gradle.api.Project
+import org.gradle.api.file.FileTree
+
+class GradleUtils {
+    /**
+     * Load properties from a file.
+     */
+    static Properties loadProperties(File file) {
+        def props = new Properties()
+        file.withInputStream { stream ->
+            props.load(stream)
+        }
+        return props
+    }
+
+    /**
+     * Filter class directories for specific patterns.
+     */
+    static FileTree filterClassDirectories(Project project, String includePattern, List<String> excludePatterns) {
+        def filteredClassDirs = project.files()
+        project.subprojects.each { subproject ->
+            def classDir = subproject.layout.buildDirectory.dir('classes/java/main').get().asFile
+            if (classDir.exists()) {
+                filteredClassDirs += project.fileTree(dir: classDir, include: includePattern, exclude: excludePatterns)
+            }
+        }
+        return filteredClassDirs
+    }
+}
