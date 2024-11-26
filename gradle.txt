@@ -213,6 +213,9 @@ import org.gradle.api.file.FileTree
 class GradleUtils {
     /**
      * Load properties from a file.
+     *
+     * @param file the properties file
+     * @return a Properties object
      */
     static Properties loadProperties(File file) {
         def props = new Properties()
@@ -223,16 +226,79 @@ class GradleUtils {
     }
 
     /**
-     * Filter class directories for specific patterns.
+     * Filters class directories for specific patterns.
+     *
+     * @param project the Gradle project
+     * @param includePattern the pattern to include (e.g., '**/*Controller.class')
+     * @param excludePatterns list of patterns to exclude
+     * @return a FileTree of filtered class directories
      */
     static FileTree filterClassDirectories(Project project, String includePattern, List<String> excludePatterns) {
-        def filteredClassDirs = project.files()
-        project.subprojects.each { subproject ->
-            def classDir = subproject.layout.buildDirectory.dir('classes/java/main').get().asFile
-            if (classDir.exists()) {
-                filteredClassDirs += project.fileTree(dir: classDir, include: includePattern, exclude: excludePatterns)
+        def filteredClassDirs = project.files() // Start with an empty collection
+        project.subprojects.each { subproject -> // Iterate over subprojects
+            def classDir = subproject.layout.buildDirectory.dir('classes/java/main').getOrNull()?.asFile
+            if (classDir?.exists()) { // Check if the directory exists
+                filteredClassDirs += project.fileTree(
+                    dir: classDir,
+                    include: includePattern,
+                    exclude: excludePatterns
+                )
             }
         }
         return filteredClassDirs
+    }
+}
+
+
+//java
+
+package helpers;
+
+import org.gradle.api.Project;
+import org.gradle.api.file.FileTree;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
+
+public class GradleUtils {
+
+    /**
+     * Load properties from a file.
+     *
+     * @param file the properties file
+     * @return a Properties object
+     * @throws IOException if the file cannot be read
+     */
+    public static Properties loadProperties(File file) throws IOException {
+        Properties props = new Properties();
+        try (FileInputStream stream = new FileInputStream(file)) {
+            props.load(stream);
+        }
+        return props;
+    }
+
+    /**
+     * Filters class directories for specific patterns.
+     *
+     * @param project       the Gradle project
+     * @param includePattern the pattern to include (e.g., "**/*Controller.class")
+     * @param excludePatterns list of patterns to exclude
+     * @return a FileTree of filtered class directories
+     */
+    public static FileTree filterClassDirectories(Project project, String includePattern, List<String> excludePatterns) {
+        FileTree filteredClassDirs = project.files(); // Start with an empty collection
+        project.getSubprojects().forEach(subproject -> {
+            File classDir = subproject.getLayout().getBuildDirectory().dir("classes/java/main").getAsFile().orNull();
+            if (classDir != null && classDir.exists()) { // Check if the directory exists
+                filteredClassDirs.plus(project.fileTree(classDir, spec -> {
+                    spec.include(includePattern);
+                    excludePatterns.forEach(spec::exclude);
+                }));
+            }
+        });
+        return filteredClassDirs;
     }
 }
