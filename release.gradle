@@ -1,0 +1,136 @@
+scmVersion {
+    repository {
+        type = 'git'
+    }
+    versionIncrementer 'incrementMinor'
+    tag { prefix = '' }
+    nextVersion { version -> version ?: '0.1.0' }
+}
+
+// Dynamically set the version based on the branch
+allprojects {
+    version = determineVersion()
+}
+
+def determineVersion() {
+    // Detect current Git branch
+    def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+
+    // Use Axion's version for master/main, but modify it for feature branches
+    if (branchName != 'main' && branchName != 'master') {
+        return "${scmVersion.version}-${branchName}-SNAPSHOT"
+    }
+    return scmVersion.version
+}
+
+// Prevent release tasks for feature branches
+tasks.named('release').configure {
+    onlyIf {
+        def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        return branchName == 'main' || branchName == 'master'
+    }
+}
+
+
+jib.gradle
+jib {
+    from {
+        image = 'gcr.io/distroless/java21'
+    }
+    to {
+        image = "${gcpRegion}-docker.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpDockerRepo}/${rootProjectName}:${project.version}"
+        tags = [project.version, "latest"]
+    }
+    container {
+        ports = ['8080']
+        labels = [
+            "build.version": project.version,
+            "branch": "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        ]
+    }
+}
+
+
+/master
+
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up JDK
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle
+
+      # Build and release
+      - name: Build and Release
+        run: |
+          ./gradlew clean release bootJar publish jib
+
+
+
+
+name: Feature Branch Workflow
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+
+jobs:
+  feature-build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up JDK
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle
+
+      # Build the project (without publishing JARs)
+      - name: Build Snapshot JAR and Docker Image
+        run: |
+          ./gradlew clean bootJar jib
+
+    
