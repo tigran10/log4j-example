@@ -1,0 +1,86 @@
+// release.gradle
+
+plugins {
+    id 'pl.allegro.tech.build.axion-release'
+}
+scmVersion {
+    repository {
+        type = 'git'
+    }
+    versionIncrementer 'incrementMinor'
+    tag { prefix = '' }
+    nextVersion { version -> version ?: '0.1.0' }
+}
+
+// Dynamically set the version based on the branch
+allprojects {
+    version = determineVersion()
+}
+
+def determineVersion() {
+    // Detect current Git branch
+    def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+
+    // Use Axion's version for master/main, but modify it for feature branches
+    if (branchName != 'main' && branchName != 'master') {
+        return "${scmVersion.version}-${branchName}-SNAPSHOT"
+    }
+    return scmVersion.version
+}
+
+// Prevent release tasks for feature branches
+tasks.named('release').configure {
+    onlyIf {
+        // Check if the branch is 'main' or 'master'
+        def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        return branchName == 'main' || branchName == 'master'
+    }
+
+    doFirst {
+        // Ensure the Git working directory is clean
+        def status = "git status --porcelain".execute().text.trim()
+        if (!status.isEmpty()) {
+            throw new GradleException("Git working directory is not clean!")
+        }
+    }
+}
+
+// jib
+
+jib {
+    from {
+        image = 'gcr.io/distroless/java21'
+    }
+    to {
+        image = "${gcpRegion}-docker.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpDockerRepo}/${rootProjectName}:${project.version}"
+        tags = [project.version, "latest"]
+    }
+    container {
+        ports = ['8080']
+        labels = [
+            "build.version": project.version,
+            "branch": "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        ]
+    }
+}
+
+
+// gradle
+
+tasks.named('publish').configure {
+    onlyIf {
+        def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        return branchName == 'main' || branchName == 'master'
+    }
+}
+
+tasks.named('bootJar').configure {
+    archiveFileName.set("${rootProjectName}-${project.version}.jar")
+}
+
+
+configure(subprojects.findAll { project ->
+    ['moduleA', 'moduleB', 'moduleC'].contains(project.name)
+}) {
+    apply from: "$rootDir/gradle/configurations/release.gradle"
+}
