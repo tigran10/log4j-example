@@ -84,3 +84,20 @@ configure(subprojects.findAll { project ->
 }) {
     apply from: "$rootDir/gradle/configurations/release.gradle"
 }
+
+
+tasks.named('release').configure {
+    onlyIf {
+        // Check if the branch is 'main' or 'master'
+        def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        return branchName == 'main' || branchName == 'master'
+    }
+
+    doFirst {
+        // Ensure the Git working directory is clean
+        def status = "git status --porcelain".execute().text.trim()
+        if (!status.isEmpty()) {
+            throw new GradleException("Git working directory is not clean!")
+        }
+    }
+}
