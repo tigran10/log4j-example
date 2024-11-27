@@ -386,3 +386,128 @@ public class GradleUtils {
         return filteredClassDirs;
     }
 }
+
+
+1. Root build.gradle
+
+Only keep high-level shared settings and apply configuration files modularly:
+
+```
+configure(subprojects.findAll { gradle.ext.includedProjects.contains(it.path) }) {
+    apply from: "$rootDir/gradle/configurations/java.gradle"
+    apply from: "$rootDir/gradle/configurations/testing.gradle"
+    apply from: "$rootDir/gradle/configurations/publishing.gradle"
+    apply from: "$rootDir/gradle/configurations/jacoco.gradle"
+    apply from: "$rootDir/gradle/configurations/sonarqube.gradle"
+}
+```
+
+2. gradle/configurations/java.gradle
+```
+apply plugin: 'java'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+
+```
+
+3. gradle/configurations/testing.gradle
+
+```
+apply plugin: 'java-test-fixtures'
+
+test {
+    useJUnitPlatform {
+        excludeEngines 'junit-vintage'
+    }
+}
+
+```
+
+
+4. gradle/configurations/jacoco.gradle
+
+```
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = libs.versions.jacocoTool.get()
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+    }
+}
+```
+
+5. gradle/configurations/sonarqube.gradle
+
+```
+apply plugin: 'org.sonarqube'
+
+```
+
+6. gradle/configurations/publishing.gradle
+
+
+```
+def publishableModules = [
+    ':bootstrap',
+    ':lib:ehr-client',
+    ':lib:meddbase-client',
+    ':lib:spectrum-client',
+    ':lib:dentally-client'
+]
+
+if (publishableModules.contains(project.path)) {
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                afterEvaluate { project ->
+                    artifactId = project.archivesBaseName
+                }
+                suppressPomMetadataWarningsFor('testFixturesApiElements')
+                suppressPomMetadataWarningsFor('testFixturesRuntimeElements')
+                pom {
+                    withXml {
+                        def dependencies = asNode().dependencies[0]
+                        if (dependencies) {
+                            dependencies.children().removeAll { dep ->
+                                dep.groupId.text() == project.group && dep.artifactId.text() == project.archivesBaseName
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "${gcpMavenRepo}"
+                url = uri("${gcpMavenRepoProtocol}://${gcpRegion}-maven.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpMavenRepo}")
+            }
+        }
+    }
+}
+
+if (project.hasProperty('publishToGcpMaven') && !project.publishToGcpMaven.toBoolean()) {
+    tasks.withType(PublishToMavenRepository).matching { it.repository.name == "${gcpMavenRepo}" }.all {
+        enabled = false
+    }
+}
+```
