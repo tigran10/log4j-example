@@ -58,9 +58,7 @@ jib {
     }
 }
 
-
-
-name: CI/CD on Master
+name: CI/CD for Master/Main
 
 on:
   push:
@@ -69,12 +67,20 @@ on:
       - main
 
 jobs:
-  ci-cd:
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -82,7 +88,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build Project
+      - name: Build and Test
         run: |
           ./gradlew clean build -Penv=production
         env:
@@ -95,6 +101,8 @@ jobs:
       - name: Release Version
         run: |
           ./gradlew release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Show Current Version
         run: |
@@ -115,3 +123,55 @@ jobs:
             build/libs/*.jar
           tag_name: ${{ github.ref_name }}
           body: "Release notes can be added here."
+
+
+name: CI for Non-Master Branches
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  non-master:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Calculate Version
+        run: |
+          ./gradlew currentVersion
+
+      - name: Build and Test
+        run: |
+          ./gradlew clean build -Penv=ci
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Publish Docker Image
+        run: |
+          VERSION=$(./gradlew -q currentVersion)
+          BRANCH_NAME=$(echo "${{ github.head_ref || github.ref_name }}" | sed 's/refs\/heads\///' | tr '/' '-')
+          ./gradlew jib -Djib.to.image=${{ secrets.GCP_DOCKER_REPO }}/ci-${BRANCH_NAME}:${VERSION}          
