@@ -1,0 +1,117 @@
+// release.gradle
+
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.15.4'
+    id 'com.google.cloud.tools.jib' version '3.3.1'
+}
+
+scmVersion {
+    repository {
+        type = 'git'
+    }
+    tag {
+        prefix = 'v' // Tags will look like `v1.0.0`
+    }
+    initialVersion = '1.0.0' // Default if no tags exist
+}
+
+tasks.register('publishArtifacts') {
+    dependsOn 'build'
+    doLast {
+        println "Publishing JAR to artifact repository"
+        // Add your publishing logic here
+    }
+}
+
+tasks.register('publishDocker') {
+    dependsOn 'build'
+    doLast {
+        println "Publishing Docker image"
+        exec {
+            commandLine 'gradle', 'jib'
+        }
+    }
+}
+
+tasks.register('createGitHubRelease') {
+    doLast {
+        println "Creating GitHub release"
+        // Add GitHub release logic if not using actions
+    }
+}
+
+
+jib {
+    from {
+        image = 'gcr.io/distroless/java21'
+    }
+    to {
+        image = "${gcpRegion}-docker.pkg.dev/${gcpArtifactRegistryProjectId}/${gcpDockerRepo}/${rootProjectName}:${project.version}"
+        tags = [project.version, "latest"]
+    }
+    container {
+        ports = ['8080']
+        labels = [
+            "build.version": project.version,
+            "branch": "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+        ]
+    }
+}
+
+
+
+name: CI/CD on Master
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  ci-cd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Project
+        run: |
+          ./gradlew clean build -Penv=production
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Verify Build
+        run: |
+          ls build/libs/
+
+      - name: Release Version
+        run: |
+          ./gradlew release
+
+      - name: Show Current Version
+        run: |
+          ./gradlew currentVersion
+
+      - name: Publish Artifacts
+        run: |
+          ./gradlew publishArtifacts
+
+      - name: Publish Docker Image
+        run: |
+          ./gradlew publishDocker
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/libs/*.jar
+          tag_name: ${{ github.ref_name }}
+          body: "Release notes can be added here."
