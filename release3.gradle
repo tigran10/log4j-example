@@ -6,13 +6,29 @@ plugins {
 }
 
 scmVersion {
-    repository {
-        type = 'git'
-    }
+    versionIncrementer 'incrementPatch' // Default to incrementing patch for new tags (e.g., 1.0.1)
+    
     tag {
-        prefix = 'v' // Tags will look like `v1.0.0`
+        prefix = 'v' // Tags will look like v1.0.0
     }
-    initialVersion = '1.0.0' // Default if no tags exist
+
+    branchVersionSuffix = { branchName ->
+        if (branchName.startsWith("feature/")) {
+            "-${branchName.replace("feature/", "")}-SNAPSHOT"
+        } else if (branchName.startsWith("bugfix/")) {
+            "-${branchName.replace("bugfix/", "")}-SNAPSHOT"
+        } else if (branchName.startsWith("hotfix/")) {
+            "-${branchName.replace("hotfix/", "")}-SNAPSHOT"
+        } else {
+            "-SNAPSHOT"
+        }
+    }
+
+    nextVersion {
+        // Logic for calculating the next version if no tags exist
+        suffix = 'SNAPSHOT'
+        initialVersion = '1.0.0'
+    }
 }
 
 tasks.register('publishArtifacts') {
