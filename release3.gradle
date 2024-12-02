@@ -190,4 +190,32 @@ jobs:
         run: |
           VERSION=$(./gradlew -q currentVersion)
           BRANCH_NAME=$(echo "${{ github.head_ref || github.ref_name }}" | sed 's/refs\/heads\///' | tr '/' '-')
-          ./gradlew jib -Djib.to.image=${{ secrets.GCP_DOCKER_REPO }}/ci-${BRANCH_NAME}:${VERSION}          
+          ./gradlew jib -Djib.to.image=${{ secrets.GCP_DOCKER_REPO }}/ci-${BRANCH_NAME}:${VERSION}  
+
+
+
+
+
+  - name: Generate Release Notes
+        id: release_notes
+        run: |
+          echo "## Release v${{ steps.current_version.outputs.released-version }}" > release_notes.md
+          echo "Released on $(date '+%Y-%m-%d')" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "### 🚀 Commits Merged into Master:" >> release_notes.md
+          if git describe --tags --abbrev=0 > /dev/null 2>&1; then
+            git log $(git describe --tags --abbrev=0)..HEAD --grep="Merge pull request #" --pretty=format:"- %s" >> release_notes.md
+          else
+            git log --pretty=format:"- %s" >> release_notes.md
+          fi
+          echo "" >> release_notes.md
+          echo "### 🐳 Docker Image:" >> release_notes.md
+          echo "- myrepo/myapp:${{ steps.current_version.outputs.released-version }}" >> release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bootstrap/build/libs/*.jar
+          body_path: release_notes.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}                    
