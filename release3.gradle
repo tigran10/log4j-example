@@ -218,4 +218,12 @@ jobs:
           files: bootstrap/build/libs/*.jar
           body_path: release_notes.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}                    
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+
+
+   - name: Banner for Release
+        run: |
+          echo "#############################################"
+          echo "           Releasing Version ${{ steps.version.outputs.version }}          "
+          echo "#############################################"
+          
