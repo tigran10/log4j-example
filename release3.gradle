@@ -250,4 +250,20 @@ changelog:
     - title: Other Changes 🔄
       labels:
         - "*"          
+
+
+# Branch-based labels
+bugfix:
+  - 'bugfix/**'
+  - 'fix/**'
+
+feat:
+  - 'feature/**'
+  - 'feat/**'
+
+chore:
+  - 'chore/**'
+
+docs:
+  - 'docs/**'
           
