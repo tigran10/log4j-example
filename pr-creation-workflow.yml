@@ -1,0 +1,60 @@
+# .github/workflows/pr-creation-workflow.yml
+name: PR Creation Workflow
+
+on:
+  workflow_run:
+    workflows: ["Main Workflow"]
+    types:
+      - completed
+
+jobs:
+  create-pr:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout providers-release repository
+        uses: actions/checkout@v3
+        with:
+          repository: Blua-Technical-Platform/providers-release
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: dev
+
+      - name: Create and checkout new branch
+        run: |
+          NEW_BRANCH="${{ github.event.workflow_run.outputs.branch_name }}"
+          git checkout -b $NEW_BRANCH
+
+      - name: Change directory
+        run: cd cloud
+
+      - name: Install yq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          chmod +x /usr/bin/yq
+
+      - name: Update Chart.yaml using yq
+        run: |
+          VERSION="${{ github.event.workflow_run.outputs.version }}"
+          yq eval ".dependencies[] | select(.name == \"providers-chart\").version = \"$VERSION\"" -i Chart.yaml
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add Chart.yaml
+          git commit -m "Update providers-chart version to $VERSION"
+          git push origin $NEW_BRANCH
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: Blua-Technical-Platform/providers-release
+          base: dev
+          head: $NEW_BRANCH
+          title: "Update providers-chart version"
+          body: "This PR updates the providers-chart version to $VERSION."
