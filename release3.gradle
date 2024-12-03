@@ -287,3 +287,14 @@ jobs:
         with:
           generate_release_notes: true
 
+
+#!/bin/bash
+
+# Check if a specific range or commit is provided
+if [ -z "$1" ]; then
+  echo "Listing all changed files in Git history:"
+  git log --name-only --pretty=format: | sort | uniq
+else
+  echo "Listing changed files in Git history for range/commit: $1"
+  git log $1 --name-only --pretty=format: | sort | uniq
+fi
