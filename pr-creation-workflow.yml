@@ -1,4 +1,5 @@
 # .github/workflows/pr-creation-workflow.yml
+# .github/workflows/pr-creation-workflow.yml
 name: PR Creation Workflow
 
 on:
@@ -34,10 +35,17 @@ jobs:
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
           chmod +x /usr/bin/yq
 
-      - name: Update Chart.yaml using yq
+      - name: Update dependencies.providers-chart.version using yq
         run: |
           VERSION="${{ github.event.workflow_run.outputs.version }}"
           yq eval ".dependencies[] | select(.name == \"providers-chart\").version = \"$VERSION\"" -i Chart.yaml
+
+      - name: Bump Chart.yaml version using yq
+        run: |
+          CURRENT_VERSION=$(yq eval ".version" Chart.yaml)
+          NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. -v OFS=. '{$NF += 1; print}')
+          yq eval ".version = \"$NEW_VERSION\"" -i Chart.yaml
+          echo "Bumped Chart.yaml version from $CURRENT_VERSION to $NEW_VERSION"
 
       - name: Commit and push changes
         env:
@@ -46,7 +54,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add Chart.yaml
-          git commit -m "Update providers-chart version to $VERSION"
+          git commit -m "Update providers-chart version to $VERSION and bump Chart.yaml version"
           git push origin $NEW_BRANCH
 
       - name: Create Pull Request
@@ -56,8 +64,11 @@ jobs:
           repository: Blua-Technical-Platform/providers-release
           base: dev
           head: $NEW_BRANCH
-          title: "Update providers-chart version"
-          body: "This PR updates the providers-chart version to $VERSION."
+          title: "Update providers-chart version and bump Chart.yaml version"
+          body: |
+            This PR updates:
+            - `providers-chart.version` to $VERSION in the dependencies list.
+            - `Chart.yaml` version to $NEW_VERSION.
 
 
 # .github/workflows/main-workflow.yml
