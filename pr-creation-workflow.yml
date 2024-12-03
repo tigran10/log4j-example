@@ -99,3 +99,24 @@ jobs:
         run: |
           echo "::set-output name=branch_name::my-feature-branch"
           echo "::set-output name=version::1.2.0"          
+
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: workflow-data
+
+      - name: Load values into environment variables
+        run: |
+          set -o allexport
+          source output.txt
+          set +o allexport
+
+      - name: Print values (for testing)
+        run: |
+          echo "Version: $version"
+          echo "Branch: $branch"          
