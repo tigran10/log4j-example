@@ -58,3 +58,33 @@ jobs:
           head: $NEW_BRANCH
           title: "Update providers-chart version"
           body: "This PR updates the providers-chart version to $VERSION."
+
+
+# .github/workflows/main-workflow.yml
+name: Main Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Your build steps here
+      
+      - name: Output version and branch name
+        id: output
+        run: |
+          echo "branch_name=my-feature-branch" >> $GITHUB_ENV
+          echo "version=1.2.0" >> $GITHUB_ENV
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          echo "::set-output name=branch_name::my-feature-branch"
+          echo "::set-output name=version::1.2.0"          
