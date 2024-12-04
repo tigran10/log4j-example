@@ -142,3 +142,35 @@ jobs:
           labels: ["dependencies", "automation"]
           reviewers: ["reviewer-username"]
           draft: false          
+
+
+.github/labeler.yml
+release:
+  - base-branch: ['^main$']
+
+feature:
+  - head-branch: ['^feature/.*']
+
+bugfix:
+  - head-branch: ['^bugfix/.*']
+
+documentation:
+  - head-branch: ['^docs/.*']
+
+
+name: Pull Request Labeler
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+jobs:
+  labeler:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"  
