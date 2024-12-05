@@ -38,3 +38,8 @@ jobs:
 
           # Run helm template
           helm template ./release-chart $SET_FLAGS
+
+
+
+gcloud builds submit --config=cloudbuild.yaml \
+  --substitutions=_PROVIDER_SERVICE_NAME="provider-service",_CLOUDRUN_NETWORK="projects/bgkas/global/networks/sharedbpc",_CLOUDRUN_SUBNETWORKS="projects/bgkas/global/networks/sharedbpc-eurowest1",_CLOUDRUN_REGION="europe-west1",_CLOUDRUN_NAMESPACE="providers-dev6111"
