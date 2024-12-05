@@ -1,110 +1,40 @@
-jib {
-    from {
-        image = 'openjdk:21-jdk-slim'
-    }
-    to {
-        image = 'your-docker-repo/hello-world-api' // Set your desired image name here
-    }
-    container {
-        ports = ['8080']
-        workingDirectory = '/app'
-        environment = [
-            'SPRING_PROFILES_ACTIVE'   : 'development',
-            'OTEL_EXPORTER_OTLP_ENDPOINT' : 'http://localhost:4317',
-            'OTEL_RESOURCE_ATTRIBUTES' : 'service.name=hello-world-api'
-        ]
-        entrypoint = [
-            'java',
-            '-javaagent:/app/opentelemetry-javaagent.jar',
-            '-jar',
-            '/app/hello-world-api.jar',
-            '--spring.profiles.active=${SPRING_PROFILES_ACTIVE}'
-        ]
-    }
-    extraDirectories {
-        paths {
-            path {
-                from = file('path-to-opentelemetry-javaagent.jar') // Replace with the path to your agent file
-                into = '/app'
-            }
-        }
-    }
-}
+name: Helm Template Validation
 
+on:
+  push:
+    branches:
+      - "**"
 
-tasks.withType<Jar> {
-    archiveFileName.set("hello-world-api.jar")
-}
+jobs:
+  helm-template:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name }} # Match environment with branch name
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0 # Adjust to your desired Helm version
 
-# Use Python 3.11 slim image as base for compatibility
-FROM python:3.11-slim
+      - name: Generate Helm Template
+        env:
+          PROVIDER_SERVICE_NAME: ${{ secrets.PROVIDER_SERVICE_NAME }}
+          CLOUDRUN_NETWORK: ${{ secrets.CLOUDRUN_NETWORK }}
+          CLOUDRUN_SUBNETWORKS: ${{ secrets.CLOUDRUN_SUBNETWORKS }}
+          CLOUDRUN_REGION: ${{ secrets.CLOUDRUN_REGION }}
+          CLOUDRUN_NAMESPACE: ${{ secrets.CLOUDRUN_NAMESPACE }}
+        run: |
+          # Convert secrets to --set flags
+          SET_FLAGS="--set providerService.name=$PROVIDER_SERVICE_NAME \
+            --set cloudrun.network=$CLOUDRUN_NETWORK \
+            --set cloudrun.subnetworks=$CLOUDRUN_SUBNETWORKS \
+            --set cloudrun.region=$CLOUDRUN_REGION \
+            --set cloudrun.namespace=$CLOUDRUN_NAMESPACE"
 
-# Install dependencies for Taskfile, Helm, and gcloud SDK
-RUN apt-get update && apt-get install -y \
-    bash \
-    curl \
-    make \
-    git \
-    ca-certificates \
-    tar \
-    jq \
-    gnupg \
-    && rm -rf /var/lib/apt/lists/*
+          echo "Generated --set flags: $SET_FLAGS"
 
-# Install Taskfile
-RUN curl -s https://taskfile.dev/install.sh | sh
-
-# Install Helm
-RUN curl -LO https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz \
-    && tar -zxvf helm-v3.13.0-linux-amd64.tar.gz \
-    && mv linux-amd64/helm /usr/local/bin/helm \
-    && rm -rf helm-v3.13.0-linux-amd64.tar.gz linux-amd64
-
-# Install gcloud SDK (version 484.0.0)
-RUN curl -LO https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-484.0.0-linux-x86_64.tar.gz \
-    && tar -xf google-cloud-cli-484.0.0-linux-x86_64.tar.gz \
-    && ./google-cloud-sdk/install.sh --quiet \
-    && rm -rf google-cloud-cli-484.0.0-linux-x86_64.tar.gz
-
-# Add gcloud to PATH
-ENV PATH=$PATH:/google-cloud-sdk/bin
-
-# Initialize the gcloud CLI
-RUN gcloud components install kubectl
-
-# Set working directory
-WORKDIR /app
-
-# Use bash as default shell
-CMD ["/bin/bash"]
-
-
-
-private static final String CONCEPT_KEY = "concept";
-private static final String EQUIVALENCE_KEY = "equivalence";
-private static final String EQUIVALENT_VALUE = "equivalent";
-
-private static List<Coding> getEquivalentCodings(List<Parameters.ParametersParameterComponent> matches) {
-    return matches.stream()
-                  .map(TranslationService::extractCodingAndEquivalence)
-                  .filter(pair -> pair.getKey().isPresent() && EQUIVALENT_VALUE.equals(pair.getValue().orElse("")))
-                  .map(pair -> pair.getKey().get())
-                  .collect(Collectors.toList());
-}
-
-private static Pair<Optional<Coding>, Optional<String>> extractCodingAndEquivalence(Parameters.ParametersParameterComponent match) {
-    Optional<Coding> coding = match.getPart().stream()
-                                   .filter(part -> CONCEPT_KEY.equals(part.getName()) && part.getValue() instanceof Coding)
-                                   .map(part -> (Coding) part.getValue())
-                                   .findFirst();
-
-    Optional<String> equivalence = match.getPart().stream()
-                                        .filter(part -> EQUIVALENCE_KEY.equals(part.getName()) && part.getValue() instanceof CodeType)
-                                        .map(part -> ((CodeType) part.getValue()).getCode())
-                                        .findFirst();
-
-    return Pair.of(coding, equivalence);
-}
-
-
+          # Run helm template
+          helm template ./release-chart $SET_FLAGS
