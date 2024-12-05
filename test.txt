@@ -43,3 +43,32 @@ jobs:
 
 gcloud builds submit --config=cloudbuild.yaml \
   --substitutions=_PROVIDER_SERVICE_NAME="provider-service",_CLOUDRUN_NETWORK="projects/bgkas/global/networks/sharedbpc",_CLOUDRUN_SUBNETWORKS="projects/bgkas/global/networks/sharedbpc-eurowest1",_CLOUDRUN_REGION="europe-west1",_CLOUDRUN_NAMESPACE="providers-dev6111"
+
+
+
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/your-repo/repository.git']
+
+  - name: 'gcr.io/cloud-builders/helm'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        SET_FLAGS="--set providerService.name=$_PROVIDER_SERVICE_NAME \
+                   --set cloudrun.network=$_CLOUDRUN_NETWORK \
+                   --set cloudrun.subnetworks=$_CLOUDRUN_SUBNETWORKS \
+                   --set cloudrun.region=$_CLOUDRUN_REGION \
+                   --set cloudrun.namespace=$_CLOUDRUN_NAMESPACE"
+
+        echo "Generated --set flags: $SET_FLAGS"
+
+        # Run helm template
+        helm template ./release-chart $SET_FLAGS
+
+substitutions:
+  _PROVIDER_SERVICE_NAME: ''
+  _CLOUDRUN_NETWORK: ''
+  _CLOUDRUN_SUBNETWORKS: ''
+  _CLOUDRUN_REGION: ''
+  _CLOUDRUN_NAMESPACE: ''
