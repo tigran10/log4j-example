@@ -1,19 +1,1 @@
-Hi Dan,
 
-I thought it would be good to align on what has happened with Sebastian so far and ensure we’re clear before moving forward.
-
-First, I want to say that the recent discussions about resources were handled really well—kudos to you for managing that so effectively. This note is more of a reflection to record my thoughts.
-
-Regarding Sebastian, he’s clearly a motivated graduate with a DevOps title, but I think we both recognize that the level of engineering we need here is quite different. With the tech stakeholders involved in this project, the misalignment was apparent from the start. It’s now clear to everyone that this wasn’t going to work as expected, and the situation wasn’t set up for him to succeed. This was simply bad timing—it’s not his fault.
-
-That said, the time and energy invested in him so far mean something. Relationships have been built, and removing him now would feel like confirming that the effort was wasted. Instead, I’d like to give him the chance to continue developing his skills. While he’s not contributing significantly to the project yet, his soft skills and attitude stand out, and I can see him starting to add value in the future.
-
-From a commercial perspective, this is more of an investment in his growth at the moment. However, I believe we’ll see returns later. He’s becoming more independent and knows when to ask questions. By the end of this project, I see him as someone who could potentially contribute back to Bupa or even to other PS clients as a strong addition.
-
-Looking ahead, I think we need to be more deliberate about how we onboard new members to the team. Titles like “consultant” can create confusion internally, especially when people at Bupa question the structure of the PS team. Here, we operate with engineers who are expected to handle end-to-end ownership.
-
-I’m not saying the bar is easy to meet, but it must be clear to anyone joining that we expect them to bring the required skills to the table. If someone is more of a motivated starter, we might have space for that in some situations, but we should frame it accordingly—not as an engineer or consultant unless they meet those expectations.
-
-For now, I’d like to keep Sebastian on as a favor—it feels like the right thing to do for him and the team. But it’s important that we align on the lessons learned here for future placements.
-
-Let me know your thoughts.
